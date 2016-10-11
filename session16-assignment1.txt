@@ -1,0 +1,25 @@
+//Row-level Transactions in Hive
+
+set hive.support.concurrency = true;
+set hive.enforce.bucketing = true;
+set hive.exec.dynamic.partition.mode = nonstrict;
+set hive.txn.manager = org.apache.hadoop.hive.ql.lockmgr.DbTxnManager;
+set hive.compactor.initiator.on = true;
+set hive.compactor.worker.threads = a positive number on at least one instance of the Thrift metastore service;
+
+CREATE TABLE college(clg_id int,clg_name string,clg_loc string)
+CLUSTERED BY (clg_id)
+INTO 5 BUCKETS
+STORED AS ORC TBLPROPERTIES('transactional'='true');
+
+INSERT INTO TABLE college 
+VALUES(1,'nec','nlr'),(2,'vit','vlr'),(3,'srm','chen'),(4,'lpu','del'),(5,'stanford','uk'),(6,'JNTUA','atp'),(7,'cambridge','us');
+
+SELECT * FROM college;
+
+UPDATE college SET clg_id = 8 WHERE clg_id = 7;
+
+UPDATE college set clg_name = 'IIT' where clg_id = 6;
+
+DELETE FROM college WHERE clg_id=5;
+
